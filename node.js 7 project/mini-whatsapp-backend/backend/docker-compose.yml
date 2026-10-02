@@ -1,0 +1,149 @@
+services:
+
+  # ==========================================
+  # MYSQL
+  # ==========================================
+
+  mysql:
+    image: mysql:8.0
+
+    container_name: mini-whatsapp-mysql
+
+    restart: unless-stopped
+
+    environment:
+      MYSQL_ROOT_PASSWORD: root123 
+      MYSQL_DATABASE: whatsapp
+      MYSQL_USER: chatuser
+      MYSQL_PASSWORD: chatpassword
+
+    ports:
+      - "3306:3306"
+
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./db.sql:/docker-entrypoint-initdb.d/01-db.sql:ro
+
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "localhost",
+          "-uroot",
+          "-proot"
+        ]
+
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+
+  # ==========================================
+  # REDIS
+  # ==========================================
+
+  redis:
+    image: redis:7-alpine
+
+    container_name: mini-whatsapp-redis
+
+    restart: unless-stopped
+
+    ports:
+      - "6379:6379"
+
+    volumes:
+      - redis_data:/data
+
+    command:
+      redis-server --appendonly yes
+
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "redis-cli",
+          "ping"
+        ]
+
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+
+  # ==========================================
+  # NODE.JS CHAT SERVER
+  # ==========================================
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    container_name: mini-whatsapp-app
+
+    restart: unless-stopped
+
+    env_file:
+      - .env.docker
+
+    ports:
+      - "3001:3001"
+
+    volumes:
+      - uploads_data:/app/uploads
+
+    depends_on:
+
+      mysql:
+        condition: service_healthy
+
+      redis:
+        condition: service_healthy
+
+
+  # ==========================================
+  # BULLMQ WORKER
+  # ==========================================
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    container_name: mini-whatsapp-worker
+
+    restart: unless-stopped
+
+    command:
+      node queue/notificationWorker.js
+
+    env_file:
+      - .env.docker
+
+    volumes:
+      - uploads_data:/app/uploads
+
+    depends_on:
+
+      mysql:
+        condition: service_healthy
+
+      redis:
+        condition: service_healthy
+
+
+# ==========================================
+# VOLUMES
+# ==========================================
+
+volumes:
+
+  mysql_data:
+
+  redis_data:
+
+  uploads_data:

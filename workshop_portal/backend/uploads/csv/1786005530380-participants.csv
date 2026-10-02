@@ -1,0 +1,6 @@
+workshop_id,full_name,email,phone,organization,designation,attendance_status
+1,John Doe,john@gmail.com,9876543210,ABC Pvt Ltd,Developer,registered
+1,Jane Smith,jane@gmail.com,9876543211,XYZ Ltd,Manager,registered
+1,Rahul Patel,rahul@gmail.com,9876543212,TCS,Software Engineer,registered
+1,Priya Shah,priya@gmail.com,9876543213,Infosys,Tester,registered
+1,Amit Kumar,amit@gmail.com,9876543214,Wipro,Team Lead,registered

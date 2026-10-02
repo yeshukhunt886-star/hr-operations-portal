@@ -1,0 +1,53 @@
+.reports{
+
+width:90%;
+
+margin:auto;
+
+padding:20px;
+
+}
+
+
+.reports table{
+
+width:100%;
+
+border-collapse:collapse;
+
+background:white;
+
+}
+
+
+
+.reports th,
+.reports td{
+
+padding:12px;
+
+border:1px solid #ddd;
+
+text-align:center;
+
+}
+
+
+
+.export-btn{
+
+background:#16a34a;
+
+color:white;
+
+padding:10px 20px;
+
+border:none;
+
+border-radius:5px;
+
+cursor:pointer;
+
+margin-bottom:20px;
+
+}

@@ -1,0 +1,272 @@
+
+/* =====================================================
+   PARTICIPANTS PAGE
+===================================================== */
+
+.participants-page {
+    padding: 20px;
+    min-height: 100vh;
+    background: #f8fafc;
+    box-sizing: border-box;
+}
+
+
+/* =====================================================
+   CARDS
+===================================================== */
+
+.card {
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.card h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #1e293b;
+}
+
+
+/* =====================================================
+   PARTICIPANT FORM
+===================================================== */
+
+.participant-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.participant-form input,
+.participant-form select {
+    flex: 1;
+    min-width: 210px;
+    padding: 11px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 14px;
+    outline: none;
+    box-sizing: border-box;
+}
+
+.participant-form input:focus,
+.participant-form select:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+}
+
+.participant-form button {
+    background: #2563eb;
+    color: #ffffff;
+    border: none;
+    padding: 11px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.participant-form button:hover {
+    background: #1d4ed8;
+}
+
+
+/* =====================================================
+   CSV IMPORT
+===================================================== */
+
+.csv-card {
+    margin-bottom: 20px;
+}
+
+.csv-card input[type="file"] {
+    padding: 8px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+}
+
+
+/* =====================================================
+   TOOLBAR
+===================================================== */
+
+.participant-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    background: #ffffff;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.participant-toolbar input,
+.participant-toolbar select {
+    min-width: 220px;
+    padding: 10px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 14px;
+    outline: none;
+}
+
+.participant-toolbar input:focus,
+.participant-toolbar select:focus {
+    border-color: #2563eb;
+}
+
+.participant-toolbar button {
+    background: #2563eb;
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.participant-toolbar button:hover {
+    background: #1d4ed8;
+}
+
+
+/* =====================================================
+   LOADING
+===================================================== */
+
+.participant-loading {
+    background: #ffffff;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    text-align: center;
+    color: #475569;
+}
+
+
+/* =====================================================
+   PARTICIPANT TABLE
+===================================================== */
+
+.participant-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.participant-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #ffffff;
+    min-width: 850px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.participant-table th {
+    background: #2563eb;
+    color: #ffffff;
+    padding: 12px;
+    text-align: center;
+    font-weight: 600;
+}
+
+.participant-table td {
+    padding: 11px;
+    border: 1px solid #e2e8f0;
+    text-align: center;
+    color: #334155;
+}
+
+.participant-table tbody tr:hover {
+    background: #f8fafc;
+}
+
+
+/* =====================================================
+   ACTION BUTTONS
+===================================================== */
+
+.participant-table button {
+    border: none;
+    padding: 7px 12px;
+    margin: 2px;
+    border-radius: 5px;
+    cursor: pointer;
+    color: #ffffff;
+    font-weight: 500;
+}
+
+.participant-table .edit-btn {
+    background: #0d6efd;
+}
+
+.participant-table .edit-btn:hover {
+    background: #0b5ed7;
+}
+
+.participant-table .delete-btn {
+    background: #dc3545;
+}
+
+.participant-table .delete-btn:hover {
+    background: #bb2d3b;
+}
+
+
+/* =====================================================
+   STATUS
+===================================================== */
+
+.participant-table .status-badge {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media (max-width: 768px) {
+
+    .participants-page {
+        padding: 10px;
+    }
+
+    .participant-form {
+        flex-direction: column;
+    }
+
+    .participant-form input,
+    .participant-form select {
+        width: 100%;
+        min-width: 100%;
+    }
+
+    .participant-toolbar {
+        flex-direction: column;
+    }
+
+    .participant-toolbar input,
+    .participant-toolbar select,
+    .participant-toolbar button {
+        width: 100%;
+        min-width: 100%;
+    }
+
+    .participant-table {
+        min-width: 850px;
+    }
+
+}
+

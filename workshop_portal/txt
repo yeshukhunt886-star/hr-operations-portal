@@ -1,0 +1,309 @@
+# Workshop Registration Admin Portal
+## Project Overview
+Workshop Registration Admin Portal is a full-stack web application used to manage workshops, participants, attendance check-ins, announcements, dashboards, and reports.
+The system provides role-based access where Admin, Staff, and Viewer users have different permissions.
+
+# Features
+## Authentication & Authorization
+* JWT-based login authentication
+* Password hashing using bcrypt
+* Role-based access control
+
+Roles:
+* Admin
+* Staff
+* Viewer
+
+## Workshop Management
+* Create workshops
+* Update workshop details
+* Delete workshops
+* View workshop list
+
+## Participant Management
+* Add participants
+* Upload participants using CSV
+* Duplicate participant checking
+* Search and filter participants
+
+## Attendance / Check-in
+* Staff can mark participant attendance
+* Track registration and attendance status
+
+## Dashboard
+* Total workshops count
+* Total participants count
+* Attendance statistics
+* Live dashboard updates
+
+## Announcements
+* Create announcements
+* Display announcements to users
+
+## Reports
+* Export participant reports
+* CSV report generation
+
+# Technology Stack
+## Frontend
+
+* React.js
+* Vite
+* Axios
+* React Router
+* CSS
+
+## Backend
+* Node.js
+* Express.js
+* JWT Authentication
+* bcrypt Password Hashing
+
+## Database
+* MySQL
+
+## Security
+* Helmet
+* CORS
+* Input Validation
+* File Validation
+
+# Project Structure
+Workshop-Registration-Portal
+backend/
+│
+├── config/
+│   └── db.js
+│
+├── controllers/
+│   ├── authController.js
+│   ├── workshopController.js
+│   ├── participantController.js
+│   └── announcementController.js
+│
+├── middleware/
+│   ├── authMiddleware.js
+│   ├── roleMiddleware.js
+│   └── uploadMiddleware.js
+│
+├── routes/
+│   ├── authRoutes.js
+│   ├── workshopRoutes.js
+│   ├── participantRoutes.js
+│   └── announcementRoutes.js
+│
+├── services/
+├── utils/
+└── server.js
+
+frontend/
+│
+├── src/
+│   ├── pages/
+│   ├── components/
+│   ├── services/
+│   └── styles/
+│
+└── main.jsx
+
+
+# Installation Setup
+## Backend Setup
+Go to backend folder:
+cd backend
+Install dependencies:
+npm install
+
+Create `.env` file:
+PORT=3001
+DB_HOST=localhost
+DB_USER=root
+DB_PASSWORD=
+DB_NAME=workshop_portal
+JWT_SECRET=your_secret_key
+
+Run backend:
+npm run dev
+Backend runs on:
+http://localhost:3001
+
+## Frontend Setup
+Go to frontend folder:
+cd frontend
+Install dependencies:
+npm install
+Run frontend:
+npm run dev
+Frontend runs on:
+http://localhost:5173
+
+# Database Setup
+
+Create database:
+CREATE DATABASE workshop_portal;
+
+Required tables:
+Users
+workshops
+participants
+attendance
+announcements
+
+Database relations:
+users
+ |
+ |
+workshops
+ |
+ |
+participants
+ |
+ |
+attendance
+
+
+# API Documentation
+## Authentication APIs
+### Register User
+POST  /api/auth/register
+Request:
+    json
+        {
+        "name":"Admin",
+        "email":"admin@gmail.com",
+        "password":"123456",
+        "role":"admin"
+        }
+
+### Login
+POST  /api/auth/login
+Request:
+    json
+        {
+        "email":"admin@gmail.com",
+        "password":"123456"
+        }
+
+Response:
+    json
+        {
+        "success":true,
+        "token":"JWT_TOKEN"
+        }
+
+
+# Workshop APIs
+## Create Workshop
+POST /api/workshops
+Authorization:
+Admin
+
+## Get Workshops
+GET /api/workshops
+
+## Update Workshop
+PUT  /api/workshops/:id
+
+## Delete Workshop
+DELETE /api/workshops/:id
+
+---
+# Participant APIs
+## Add Participant
+POST /api/participants
+
+## Get Participants
+GET /api/participants
+
+## Upload CSV
+POST  /api/participants/upload
+Supported:
+CSV file only
+Validation:
+* Duplicate email check
+* Duplicate phone check
+
+# Attendance APIs
+## Check-in Participant
+PUT /api/participants/checkin/:id
+
+---
+# Announcement APIs
+## Create Announcement
+POST /api/announcements
+Admin only
+
+## Get Announcements
+GET /api/announcements
+
+---
+# Report APIs
+## Export Participants Report
+GET /api/reports/participants/export
+
+Output: CSV File
+
+---
+# Role Permissions
+
+| Feature             | Admin | Staff | Viewer |
+| ------------------- | ----- | ----- | ------ |
+| Login               | ✓     | ✓     | ✓      |
+| Create Workshop     | ✓     | ✗     | ✗      |
+| Manage Participants | ✓     | ✓     | View   |
+| Check-in            | ✓     | ✓     | ✗      |
+| Announcements       | ✓     | ✗     | View   |
+| Reports             | ✓     | ✓     | View   |
+
+---
+# Security Implementation
+Implemented:
+* JWT Authentication
+* Password Encryption
+* Protected Routes
+* Role Authorization
+* Helmet Security Headers
+* CORS Configuration
+* Input Validation
+* File Upload Validation
+* Duplicate Data Checking
+
+---
+
+# Demo Explanation
+## Complete Demo Flow
+### Step 1
+Admin logs into the system.
+↓
+### Step 2
+Admin creates a workshop.
+↓
+### Step 3
+Admin uploads participant CSV file.
+↓
+### Step 4
+System checks duplicate participants.
+↓
+### Step 5
+Staff logs in and performs participant check-in.
+↓
+### Step 6
+Dashboard displays updated participant and attendance statistics.
+↓
+### Step 7
+Admin creates announcements.
+↓
+### Step 8
+Admin exports participant reports.
+
+---
+# Future Improvements
+* Email notifications
+* Advanced analytics
+* Cloud deployment
+* Mobile application support
+
+---
+
+# Conclusion
+Workshop Registration Admin Portal provides a secure and efficient solution for managing workshop registrations, participants, attendance, announcements, and reports with role-based access control.

@@ -1,0 +1,19 @@
+{
+  "name": "smart-logistics-route-processor",
+  "version": "1.0.0",
+  "description": "Smart Logistics Route & Bulk Delivery Processor - DSA + Node.js internals project",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "init-db": "node scripts/initDb.js",
+    "test": "node --test test/graph.test.js"
+  },
+  "dependencies": {
+    "csv-parse": "^5.5.6",
+    "dotenv": "^16.6.1",
+    "express": "^4.19.2",
+    "multer": "^1.4.5-lts.1",
+    "mysql2": "^3.11.0"
+  }
+}

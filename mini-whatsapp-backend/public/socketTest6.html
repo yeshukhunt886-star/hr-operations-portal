@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>User 6 - Private Chat</title>
+
+    <style>
+
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 700px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        h1 {
+            margin-bottom: 10px;
+        }
+
+        #status {
+            padding: 10px;
+            background: #f0f0f0;
+            margin-bottom: 20px;
+        }
+
+        #messages {
+            border: 1px solid #ccc;
+            min-height: 200px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .message {
+            padding: 10px;
+            margin-bottom: 8px;
+            background: #f5f5f5;
+            border-radius: 5px;
+        }
+
+        .online-user {
+            padding: 5px;
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <h1>User 6 - Private Chat</h1>
+    <!-- SOCKET STATUS -->
+    <p id="status"> Connecting...</p>
+
+
+    <!-- CURRENT USER -->
+    <p><strong>User ID:</strong> 6 </p>
+    <p><strong>Username:</strong> users</p>
+
+
+    <!-- ONLINE USERS -->
+
+    <h2>Online Users</h2>
+    <div id="onlineUsers">Loading...</div>
+
+
+    <!-- PRIVATE MESSAGES -->
+
+    <h2>Received Messages</h2>
+    <div id="messages"></div>
+
+
+    <!-- SOCKET.IO CLIENT -->
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+
+        // USER 6 ACCESS TOKEN
+
+        const token =
+          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NiwidXNlcm5hbWUiOiJ1c2VycyIsImVtYWlsIjoidXNlcnNAZ21haWwuY29tIiwiaWF0IjoxNzg1MTQ4Mjg0LCJleHAiOjE3ODUxNTAwODR9.mCtM-XkjrfHbLYyBbfABDTAiIxlFFvy4G5_rFjn4mF0";
+
+
+        console.log(
+            "User 6 Token:",
+            token
+        );
+
+
+        // CONNECT SOCKET.IO
+
+        const socket = io(
+            "http://localhost:3001",
+            {
+                auth: {
+                    token: token
+                }
+            }
+        );
+
+        // SOCKET CONNECTED
+        socket.on("connect",() => {
+                console.log("User 6 Connected:",socket.id);
+
+                document.getElementById("status"
+                ).innerText =
+                    "Connected: " +socket.id;
+            }
+        );
+
+
+        // SOCKET CONNECTION ERROR
+        socket.on("connect_error",(error) => {
+                console.error("Socket Connection Error:",error.message);
+
+                document.getElementById("status"
+                ).innerText =
+                    "Connection Error: " +error.message;
+
+            }
+        );
+
+        // SOCKET DISCONNECTED
+
+        socket.on("disconnect",
+            (reason) => {
+                console.log("User 6 Disconnected:",reason);
+                document.getElementById("status").innerText ="Disconnected";
+            }
+        );
+
+
+        // RECEIVE PRIVATE MESSAGE
+        // USER 5 → USER 6
+
+        socket.on("privateMessage",
+            (data) => {
+
+                console.log("Private Message Received:",data);
+
+                addMessage(data.sender +": " +data.message);
+            }
+        );
+
+
+        // ONLINE USERS
+
+        socket.on("onlineUsers",(users) => {
+
+                console.log("Online Users:",users);
+
+                const onlineUsersDiv =document.getElementById("onlineUsers");
+
+                onlineUsersDiv.innerHTML ="";
+
+                users.forEach(
+                    (user) => {
+                        const div =document.createElement("div");
+
+                        div.className ="online-user";
+
+                        div.innerText ="ID: " +
+                            user.id +" | Username: " +
+                            user.username +" | Status: " +
+                            user.status;
+
+                        onlineUsersDiv.appendChild(div);
+                    }
+                );
+            }
+        );
+
+
+        // MESSAGE SENT EVENT
+        socket.on(
+            "messageSent",(data) => {
+                console.log("Message Sent:",data);
+            }
+        );
+
+        // MESSAGE DELIVERED
+        socket.on(
+            "messageDelivered",(data) => {
+                console.log("Message Delivered:",data);
+            }
+        );
+
+        // MESSAGE SEEN
+        socket.on("messageSeen",(data) => {
+                console.log("Message Seen:",data);
+            }
+        );
+
+        // ADD MESSAGE TO SCREEN
+
+        function addMessage(message
+        ) {
+            const div =document.createElement("div");
+            div.className ="message";
+            div.innerText =message;
+            document.getElementById("messages").appendChild(div);
+        }
+    </script>
+</body>
+</html>

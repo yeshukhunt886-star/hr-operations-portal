@@ -1,0 +1,314 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  HR
+  MANAGER
+  EMPLOYEE
+}
+
+enum EmployeeStatus {
+  ACTIVE
+  INACTIVE
+  TERMINATED
+}
+
+enum AttendanceSessionStatus {
+  OPEN
+  CLOSED
+}
+
+enum LeaveRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+enum LeaveDayType {
+  FULL_DAY
+  FIRST_HALF
+  SECOND_HALF
+}
+
+enum PayrollRunStatus {
+  PROCESSING
+  FINALIZED
+  FAILED
+  REOPENED
+}
+
+enum PayrollItemStatus {
+  DRAFT
+  FINALIZED
+  SUPERSEDED
+}
+
+model User {
+  id            String         @id @default(cuid())
+  email         String         @unique
+  passwordHash  String
+  role          Role
+  isActive      Boolean        @default(true)
+  tokenVersion  Int            @default(0)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  employee      Employee?
+  auditLogs     AuditLog[]     @relation("AuditActor")
+  notifications Notification[]
+}
+
+model Department {
+  id        String     @id @default(cuid())
+  code      String     @unique
+  name      String
+  isActive  Boolean    @default(true)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  employees Employee[]
+  holidays  Holiday[]
+}
+
+model Designation {
+  id        String     @id @default(cuid())
+  name      String     @unique
+  isActive  Boolean    @default(true)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  employees Employee[]
+}
+
+model Employee {
+  id            String         @id @default(cuid())
+  employeeCode  String         @unique
+  firstName     String
+  lastName      String
+  email         String         @unique
+  status        EmployeeStatus @default(ACTIVE)
+  joinDate      DateTime
+  exitDate      DateTime?
+  workStart     String         @default("09:00")
+  departmentId  String
+  designationId String
+  managerId     String?
+  userId        String         @unique
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  department  Department  @relation(fields: [departmentId], references: [id])
+  designation Designation @relation(fields: [designationId], references: [id])
+  manager     Employee?   @relation("DirectReports", fields: [managerId], references: [id])
+  reports     Employee[]  @relation("DirectReports")
+  user        User        @relation(fields: [userId], references: [id])
+
+  attendance         AttendanceSession[]
+  leaveRequests      LeaveRequest[]
+  leaveBalances      LeaveBalance[]
+  salaryProfiles     SalaryProfile[]
+  payrollItems       PayrollItem[]
+  decidedLeave       LeaveRequest[]      @relation("LeaveDecider")
+  attendanceOpenLock AttendanceOpenLock?
+
+  @@index([departmentId])
+  @@index([managerId])
+  @@index([status])
+}
+
+model AttendanceOpenLock {
+  employeeId String @id
+  sessionId  String @unique
+
+  employee Employee @relation(fields: [employeeId], references: [id])
+}
+
+model AttendanceSession {
+  id                     String                  @id @default(cuid())
+  employeeId             String
+  businessDate           DateTime
+  checkInAt              DateTime
+  checkOutAt             DateTime?
+  breakInAt              DateTime?
+  breakOutAt             DateTime?
+  breakDurationMinutes   Int?
+  lateMinutes            Int                     @default(0)
+  durationMinutes        Int?
+  workedMinutes          Int?
+  status                 AttendanceSessionStatus @default(OPEN)
+  checkoutIdempotencyKey String?
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime                @updatedAt
+
+  employee Employee @relation(fields: [employeeId], references: [id])
+
+  @@unique([employeeId, checkoutIdempotencyKey])
+  @@index([employeeId, businessDate])
+  @@index([employeeId, status])
+}
+
+model Holiday {
+  id           String   @id @default(cuid())
+  date         DateTime
+  name         String
+  departmentId String?
+  createdAt    DateTime @default(now())
+
+  department Department? @relation(fields: [departmentId], references: [id])
+
+  @@unique([date, departmentId])
+  @@index([date])
+}
+
+model LeaveType {
+  id        String   @id @default(cuid())
+  code      String   @unique
+  name      String
+  paid      Boolean  @default(true)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  requests LeaveRequest[]
+  balances LeaveBalance[]
+}
+
+model LeaveBalance {
+  id          String  @id @default(cuid())
+  employeeId  String
+  leaveTypeId String
+  year        Int
+  entitled    Decimal
+  used        Decimal @default(0)
+
+  employee  Employee  @relation(fields: [employeeId], references: [id])
+  leaveType LeaveType @relation(fields: [leaveTypeId], references: [id])
+
+  @@unique([employeeId, leaveTypeId, year])
+}
+
+model LeaveRequest {
+  id            String             @id @default(cuid())
+  employeeId    String
+  leaveTypeId   String
+  startDate     DateTime
+  endDate       DateTime
+  daysCharged   Decimal
+  dayType       LeaveDayType      @default(FULL_DAY)
+  reason        String
+  status        LeaveRequestStatus @default(PENDING)
+  decidedById   String?
+  decidedAt     DateTime?
+  decisionNote  String?
+  version       Int                @default(0)
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+
+  employee  Employee  @relation(fields: [employeeId], references: [id])
+  leaveType LeaveType @relation(fields: [leaveTypeId], references: [id])
+  decidedBy Employee? @relation("LeaveDecider", fields: [decidedById], references: [id])
+
+  @@index([employeeId, status])
+  @@index([status])
+}
+
+model SalaryProfile {
+  id            String   @id @default(cuid())
+  employeeId    String
+  baseSalary    Decimal
+  effectiveFrom DateTime
+  createdAt     DateTime @default(now())
+
+  employee Employee @relation(fields: [employeeId], references: [id])
+
+  @@index([employeeId, effectiveFrom])
+}
+
+model PayrollRun {
+  id           String           @id @default(cuid())
+  year         Int
+  month        Int
+  status       PayrollRunStatus @default(PROCESSING)
+  errorMessage String?
+  createdById  String
+  finalizedAt  DateTime?
+  reopenedAt   DateTime?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  items PayrollItem[]
+
+  @@index([year, month, status])
+}
+
+model PayrollItem {
+  id                 String            @id @default(cuid())
+  payrollRunId       String
+  employeeId         String
+  year               Int
+  month              Int
+  status             PayrollItemStatus @default(DRAFT)
+  baseSalary         Decimal
+  workingDaysInMonth Int
+  payableDays        Decimal
+  attendanceDays     Int
+  paidLeaveDays      Decimal
+  unpaidLeaveDays    Decimal
+  dailyRate          Decimal
+  bonus              Decimal           @default(0)
+  deduction          Decimal           @default(0)
+  grossPay           Decimal
+  netPay             Decimal
+  formulaSnapshot    Json
+  createdAt          DateTime          @default(now())
+
+  run      PayrollRun @relation(fields: [payrollRunId], references: [id])
+  employee Employee   @relation(fields: [employeeId], references: [id])
+
+  @@unique([payrollRunId, employeeId])
+  @@index([employeeId, year, month])
+}
+
+model FinalizedPayrollKey {
+  employeeId String
+  year       Int
+  month      Int
+  itemId     String @unique
+
+  @@id([employeeId, year, month])
+}
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  actorUserId String?
+  action      String
+  entityType  String
+  entityId    String
+  metadata    Json?
+  createdAt   DateTime @default(now())
+
+  actor User? @relation("AuditActor", fields: [actorUserId], references: [id])
+
+  @@index([entityType, entityId])
+  @@index([createdAt])
+}
+
+model Notification {
+  id        String    @id @default(cuid())
+  userId    String
+  title     String
+  message   String
+  type      String
+  isRead    Boolean   @default(false)
+  createdAt DateTime  @default(now())
+  readAt    DateTime?
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId, isRead])
+  @@index([userId, createdAt])
+}

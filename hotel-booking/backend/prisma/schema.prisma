@@ -1,0 +1,86 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum RoomStatus {
+  AVAILABLE
+  BOOKED
+  MAINTENANCE
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+model User {
+  id           Int          @id @default(autoincrement())
+  name         String
+  email        String       @unique
+  password     String
+  role         UserRole     @default(USER)
+  status       UserStatus   @default(ACTIVE)
+  bookings     Booking[]
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+}
+
+model Hotel {
+  id           Int          @id @default(autoincrement())
+  name         String
+  city         String
+  address      String
+  description  String?      @db.Text
+  image        String?
+  rating       Decimal?     @db.Decimal(2, 1)
+  rooms        Room[]
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+}
+
+model Room {
+  id           Int          @id @default(autoincrement())
+  hotelId      Int
+  roomNumber   String
+  roomType     String
+  price        Decimal      @db.Decimal(10, 2)
+  capacity     Int
+  status       RoomStatus   @default(AVAILABLE)
+  hotel        Hotel        @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+  bookings     Booking[]
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  @@unique([hotelId, roomNumber])
+}
+
+model Booking {
+  id           Int           @id @default(autoincrement())
+  userId       Int
+  roomId       Int
+  checkIn      DateTime
+  checkOut     DateTime
+  guests       Int
+  totalAmount  Decimal       @db.Decimal(10, 2)
+  status       BookingStatus @default(PENDING)
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  room         Room          @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}

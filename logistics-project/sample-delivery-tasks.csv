@@ -1,0 +1,8 @@
+source_id,location_name,description,priority,deadline
+S001,Warehouse A,Deliver electronics batch,2,2026-09-15 10:00:00
+S002,Warehouse B,Deliver groceries,1,2026-09-10 08:00:00
+S003,Downtown Hub,Deliver furniture,5,2026-09-20 17:00:00
+S004,Warehouse A,Deliver spare parts,3,
+S005,Airport Depot,Urgent medical supplies,1,2026-09-09 23:59:00
+S006,Downtown Hub,Return pickup,8,
+S007,Warehouse B,Deliver electronics batch,2,2026-09-16 12:00:00

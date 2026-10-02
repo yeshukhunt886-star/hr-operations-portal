@@ -1,0 +1,130 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Country {
+  id                 String            @id @default(cuid())
+  iso2Code           String            @unique
+  iso3Code           String            @unique
+  name               String
+  regionCode         String?
+  regionName         String?
+  incomeLevelCode    String?
+  incomeLevelName    String?
+  capitalCity        String?
+  longitude          String?
+  latitude           String?
+  sourceLastUpdated  DateTime?
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+  values             IndicatorValue[]
+
+  @@index([regionCode])
+  @@index([incomeLevelCode])
+  @@map("countries")
+}
+
+model Indicator {
+  id                  String            @id @default(cuid())
+  code                String            @unique
+  name                String
+  sourceNote          String?
+  sourceOrganization  String?
+  unit                String?
+  sourceLastUpdated   DateTime?
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  values              IndicatorValue[]
+
+  @@map("indicators")
+}
+
+model IndicatorValue {
+  id                 String    @id @default(cuid())
+  countryId          String
+  indicatorId        String
+  year               Int
+  value              Decimal?
+  sourceLastUpdated  String?
+  importJobId        String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  country            Country   @relation(fields: [countryId], references: [id], onDelete: Restrict)
+  indicator          Indicator @relation(fields: [indicatorId], references: [id], onDelete: Restrict)
+  importJob          ImportJob? @relation(fields: [importJobId], references: [id], onDelete: SetNull)
+
+  @@unique([countryId, indicatorId, year])
+  @@index([indicatorId, year, countryId])
+  @@index([countryId, indicatorId, year])
+  @@index([year])
+  @@index([importJobId])
+  @@map("indicator_values")
+}
+
+model ImportJob {
+  id                 String            @id @default(cuid())
+  status             String            @default("queued")
+  configHash         String
+  countryCodesJson   String
+  indicatorCodesJson String
+  yearStart          Int
+  yearEnd            Int
+  importedCount      Int               @default(0)
+  updatedCount       Int               @default(0)
+  unchangedCount     Int               @default(0)
+  skippedCount       Int               @default(0)
+  failedCount        Int               @default(0)
+  pagesFetched       Int               @default(0)
+  pagesExpected      Int?
+  anomalyCount       Int               @default(0)
+  cancelRequested    Boolean           @default(false)
+  checkpointJson     String?
+  errorSummary       String?
+  startedAt          DateTime?
+  finishedAt         DateTime?
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+  errors             ImportJobError[]
+  values             IndicatorValue[]
+
+  @@index([status, createdAt])
+  @@index([configHash, status])
+  @@map("import_jobs")
+}
+
+model ImportJobError {
+  id             String    @id @default(cuid())
+  jobId          String
+  page           Int?
+  countryCode    String?
+  indicatorCode  String?
+  year           Int?
+  sourceUrl      String?
+  httpStatus     Int?
+  message        String
+  contextJson    String?
+  createdAt      DateTime  @default(now())
+  job            ImportJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@index([jobId, createdAt])
+  @@map("import_job_errors")
+}
+
+model SyncWatermark {
+  id                String   @id @default(cuid())
+  indicatorCode     String
+  countryScope      String
+  yearStart         Int
+  yearEnd           Int
+  sourceLastUpdated String?
+  lastJobId         String?
+  updatedAt         DateTime @updatedAt
+
+  @@unique([indicatorCode, countryScope, yearStart, yearEnd])
+  @@map("sync_watermarks")
+}

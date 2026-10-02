@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <title> Users 5Socket.IO Redis Test</title>
+
+</head>
+    <style>
+
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 700px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        h1 {
+            margin-bottom: 10px;
+        }
+
+        #status {
+            padding: 10px;
+            background: #f0f0f0;
+            margin-bottom: 20px;
+        }
+
+        #messages {
+            border: 1px solid #ccc;
+            min-height: 200px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .message {
+            padding: 10px;
+            margin-bottom: 8px;
+            background: #f5f5f5;
+            border-radius: 5px;
+        }
+
+        .online-user {
+            padding: 5px;
+        }
+
+    </style>
+<body>
+
+      <h1>User 5 - Private Chat</h1>
+
+    <p id="status">
+        Connecting...
+    </p>
+
+    <input type="text"id="messageInput"placeholder="Enter message">
+
+    <button id="sendButton">Send Message to User </button>
+    <h3>Messages</h3>
+    <div id="messages"></div>
+
+    <!-- Socket.IO -->
+    <script src="/socket.io/socket.io.js"></script>
+
+
+    <script>
+
+        const token =
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NSwidXNlcm5hbWUiOiJhZG1pbiIsImVtYWlsIjoiYWRtaW5AZ21haWwuY29tIiwiaWF0IjoxNzg1MTQ4MzE4LCJleHAiOjE3ODUxNTAxMTh9.w3JzllD64sxFB9pNn85aH45WNe86LVHoznCfOW92lcw";
+
+
+        console.log(
+            "Token:",
+            token
+        );
+
+
+        const socket =
+            io(
+                "http://localhost:3001",
+                {
+                    auth: {
+                        token: token
+                    }
+                }
+            );
+
+
+        // SOCKET CONNECTED
+        socket.on("connect", () => {
+            console.log("User 5 Connected:",socket.id);
+            document.getElementById("status").innerText =
+                "Connected: " + socket.id;
+        });
+
+
+        // ONLINE USERS
+        socket.on("onlineUsers",(users) => {
+                console.log("Online Users:",users);
+            }
+        );
+
+
+        // CONNECTION ERROR
+        socket.on("connect_error",(error) => {
+                console.error("Socket Connection Error:",
+                    error.message);
+
+                document.getElementById("status"
+                    ).innerText =
+                    "Connection Error: " +
+                    error.message;
+            }
+        );
+        
+        // SEND PRIVATE MESSAGE
+        // USER 5 → USER 6
+        document.getElementById("sendButton"
+        ).addEventListener("click",() => {
+
+                const message =document.getElementById("messageInput").value;
+
+
+                if (!message) {
+                    alert("Please enter a message");
+                    return;
+                }
+
+                // THIS IS THE CODE YOU ASKED ABOUT
+                socket.emit("privateMessage",
+                    {
+                        receiver: 6,
+                        message: message
+                    }
+                );
+
+                console.log("Message sent to User 6:",message);
+
+                // Clear input
+                document.getElementById("messageInput").value = "";
+            }
+        );
+
+        // MESSAGE SENT ACKNOWLEDGEMENT
+        socket.on("messageSent",(data) => {
+                console.log("Message Sent:",data);
+
+                addMessage(
+                    "You: " +
+                    data.message);
+            }
+        );
+
+        // MESSAGE DELIVERED
+        socket.on("messageDelivered",(data) => {
+                console.log("Message Delivered:",data);
+            }
+        );
+
+
+        // DISPLAY MESSAGE
+        function addMessage(message
+        ) {
+            const div =document.createElement("div");
+            div.innerText =message;
+            document.getElementById("messages").appendChild(div);
+        }
+    </script>
+</body>
+</html>

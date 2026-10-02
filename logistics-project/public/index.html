@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Smart Logistics Route & Bulk Delivery Processor</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<header class="topbar">
+  <h1>🚚 Smart Logistics</h1>
+  <span class="subtitle">Route Planning &amp; Bulk Delivery Processor</span>
+</header>
+
+<nav class="tabs">
+  <button class="tab-btn active" data-tab="locations">Locations</button>
+  <button class="tab-btn" data-tab="connections">Connections</button>
+  <button class="tab-btn" data-tab="route">Route Finder</button>
+  <button class="tab-btn" data-tab="tasks">Delivery Tasks</button>
+  <button class="tab-btn" data-tab="bulk-import">Bulk Import</button>
+  <button class="tab-btn" data-tab="bulk-route">Bulk Routes</button>
+  <button class="tab-btn" data-tab="metrics">Metrics</button>
+</nav>
+
+<main>
+
+  <!-- LOCATIONS -->
+  <section id="locations" class="tab-panel active">
+    <div class="card">
+      <h2>Add Location</h2>
+      <form id="location-form" class="inline-form">
+        <input type="text" id="location-name" placeholder="Location name " required />
+        <button type="submit">Add Location</button>
+      </form>
+      <div id="location-message" class="message"></div>
+    </div>
+    <div class="card">
+      <h2>All Locations</h2>
+      <table id="locations-table">
+        <thead><tr><th>ID</th><th>Name</th><th>Created</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- CONNECTIONS -->
+  <section id="connections" class="tab-panel">
+    <div class="card">
+      <h2>Add Connection</h2>
+      <form id="connection-form" class="grid-form">
+        <select id="conn-from" required></select>
+        <select id="conn-to" required></select>
+        <input type="number" id="conn-weight" placeholder="Weight (distance/cost)" min="0" step="0.01" required />
+        <label class="checkbox-label"><input type="checkbox" id="conn-bidirectional" /> Bidirectional</label>
+        <button type="submit">Add Connection</button>
+      </form>
+      <div id="connection-message" class="message"></div>
+    </div>
+    <div class="card">
+      <h2>All Connections</h2>
+      <table id="connections-table">
+        <thead><tr><th>ID</th><th>From</th><th>To</th><th>Weight</th><th>Bidirectional</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ROUTE FINDER -->
+  <section id="route" class="tab-panel">
+    <div class="card">
+      <h2>Find Shortest Route</h2>
+      <form id="route-form" class="inline-form">
+        <select id="route-from" required></select>
+        <select id="route-to" required></select>
+        <button type="submit">Find Route</button>
+      </form>
+      <div id="route-result" class="result-box"></div>
+    </div>
+    <div class="card">
+      <h2>Reachability from a Location</h2>
+      <form id="reachable-form" class="inline-form">
+        <select id="reachable-from" required></select>
+        <button type="submit">Show Reachable Locations</button>
+      </form>
+      <div id="reachable-result" class="result-box"></div>
+    </div>
+  </section>
+
+  <!-- TASKS -->
+  <section id="tasks" class="tab-panel">
+    <div class="card">
+      <h2>Add Delivery Task</h2>
+      <form id="task-form" class="grid-form">
+        <select id="task-location" required></select>
+        <input type="text" id="task-description" placeholder="Description (optional)" />
+        <input type="number" id="task-priority" placeholder="Priority (1=urgent .. 10=low)" min="1" max="10" required />
+        <input type="datetime-local" id="task-deadline" />
+        <button type="submit">Add Task</button>
+      </form>
+      <div id="task-message" class="message"></div>
+    </div>
+    <div class="card">
+      <h2>Pending Tasks (priority-queue order)</h2>
+      <table id="tasks-table">
+        <thead><tr><th>#</th><th>Location</th><th>Description</th><th>Priority</th><th>Deadline</th><th>Actions</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- BULK IMPORT -->
+  <section id="bulk-import" class="tab-panel">
+    <div class="card">
+      <h2>Bulk Import Delivery Tasks (CSV)</h2>
+      <p class="hint">Required columns: <code>location_name</code>, <code>priority</code>. Optional: <code>source_id</code>, <code>description</code>, <code>deadline</code>.</p>
+      <form id="import-form" class="inline-form">
+        <input type="file" id="import-file" accept=".csv" required />
+        <button type="submit">Upload &amp; Import</button>
+      </form>
+      <div id="import-message" class="message"></div>
+    </div>
+    <div class="card" id="import-status-card" style="display:none;">
+      <h2>Job Status</h2>
+      <div id="import-status"></div>
+      <button id="cancel-import-btn" class="danger-btn">Cancel Job</button>
+    </div>
+  </section>
+
+  <!-- BULK ROUTE -->
+  <section id="bulk-route" class="tab-panel">
+    <div class="card">
+      <h2>Bulk Route Calculation</h2>
+      <p class="hint">Enter one "from,to" pair per line, using location IDs (see Locations tab).</p>
+      <textarea id="bulk-route-input" rows="6" placeholder="1,2&#10;1,3&#10;2,4"></textarea>
+      <button id="bulk-route-btn">Calculate All Routes</button>
+      <div id="bulk-route-result" class="result-box"></div>
+    </div>
+  </section>
+
+  <!-- METRICS -->
+  <section id="metrics" class="tab-panel">
+    <div class="card">
+      <h2>System Metrics</h2>
+      <button id="refresh-metrics-btn">Refresh</button>
+      <pre id="metrics-output" class="metrics-box"></pre>
+    </div>
+  </section>
+
+</main>
+
+
+
+<script src="app.js"></script>
+</body>
+</html>
